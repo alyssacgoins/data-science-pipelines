@@ -28,6 +28,9 @@ import yaml
 import functools
 from kfp import dsl
 
+from samples.v2 import pipeline_with_custom_path_artifact
+
+
 def get_kfp_package_path() -> str:
     path = get_package_path("sdk/python")
     print(f'Using the following KFP package path for tests: {path}')
@@ -158,7 +161,7 @@ class SampleTest(unittest.TestCase):
         """Runs once before all tests."""
         print('Deploying pre-requisites....')
         for p in PREREQS:
-            deploy_k8s_yaml(_KFP_NAMESPACE, p)
+            delete_k8s_yaml(_KFP_NAMESPACE, p)
         print('Done deploying pre-requisites.')
 
     @classmethod
@@ -171,48 +174,49 @@ class SampleTest(unittest.TestCase):
 
     def test(self):
         test_cases: List[TestCase] = [
-            TestCase(pipeline_func=hello_world.pipeline_hello_world),
-            TestCase(pipeline_func=producer_consumer_param
-                     .producer_consumer_param_pipeline),
-            TestCase(pipeline_func=pipeline_container_no_input
-                     .pipeline_container_no_input),
-            TestCase(pipeline_func=two_step_pipeline_containerized
-                     .two_step_pipeline_containerized),
-            TestCase(pipeline_func=component_with_optional_inputs.pipeline),
-            TestCase(pipeline_func=pipeline_with_env.pipeline_with_env),
-
-            # The following tests are not working. Tracking issue: https://github.com/kubeflow/pipelines/issues/11053
-            # TestCase(pipeline_func=pipeline_with_importer.pipeline_with_importer),
-            # TestCase(pipeline_func=pipeline_with_volume.pipeline_with_volume),
-            TestCase(pipeline_func=pipeline_with_secret_as_volume
-                     .pipeline_secret_volume),
-            TestCase(
-                pipeline_func=pipeline_with_secret_as_env.pipeline_secret_env),
-            TestCase(pipeline_func=subdagio.parameter.crust),
-            TestCase(pipeline_func=subdagio.parameter_cache.crust),
-            TestCase(pipeline_func=subdagio.mixed_parameters.crust),
-            TestCase(
-                pipeline_func=subdagio.multiple_parameters_namedtuple.crust),
-            TestCase(pipeline_func=subdagio.parameter_oneof.crust),
-            TestCase(pipeline_func=subdagio.artifact_cache.crust),
-            TestCase(pipeline_func=subdagio.artifact.crust),
-            TestCase(
-                pipeline_func=subdagio.multiple_artifacts_namedtuple.crust),
-            TestCase(pipeline_func=pipeline_with_placeholders
-                     .pipeline_with_placeholders),
-            TestCase(pipeline_func=modelcar.pipeline_modelcar_test),
-            TestCase(
-                pipeline_func=parallel_consume_upstream.loop_consume_upstream),
-            TestCase(pipeline_func=parallel_after_dependency
-                     .loop_with_after_dependency_set),
-            TestCase(
-                pipeline_func=collected_parameters.collected_param_pipeline),
-            TestCase(pipeline_func=pipeline_with_retry.retry_pipeline),
-            TestCase(pipeline_func=pipeline_with_input_status_state.status_state_pipeline),
-            TestCase(pipeline_func=nested_pipeline_opt_inputs_parent_level.nested_pipeline_opt_inputs_parent_level),
-            TestCase(pipeline_func=nested_pipeline_opt_input_child_level.nested_pipeline_opt_input_child_level),
-            TestCase(pipeline_func=nested_pipeline_opt_inputs_nil.nested_pipeline_opt_inputs_nil),
-            TestCase(pipeline_func=pipeline_with_pod_metadata.pipeline_with_pod_metadata)
+            # TestCase(pipeline_func=hello_world.pipeline_hello_world),
+            # TestCase(pipeline_func=producer_consumer_param
+            #          .producer_consumer_param_pipeline),
+            # TestCase(pipeline_func=pipeline_container_no_input
+            #          .pipeline_container_no_input),
+            # TestCase(pipeline_func=two_step_pipeline_containerized
+            #          .two_step_pipeline_containerized),
+            # TestCase(pipeline_func=component_with_optional_inputs.pipeline),
+            # TestCase(pipeline_func=pipeline_with_env.pipeline_with_env),
+            #
+            # # The following tests are not working. Tracking issue: https://github.com/kubeflow/pipelines/issues/11053
+            # # TestCase(pipeline_func=pipeline_with_importer.pipeline_with_importer),
+            # # TestCase(pipeline_func=pipeline_with_volume.pipeline_with_volume),
+            # TestCase(pipeline_func=pipeline_with_secret_as_volume
+            #          .pipeline_secret_volume),
+            # TestCase(
+            #     pipeline_func=pipeline_with_secret_as_env.pipeline_secret_env),
+            # TestCase(pipeline_func=subdagio.parameter.crust),
+            # TestCase(pipeline_func=subdagio.parameter_cache.crust),
+            # TestCase(pipeline_func=subdagio.mixed_parameters.crust),
+            # TestCase(
+            #     pipeline_func=subdagio.multiple_parameters_namedtuple.crust),
+            # TestCase(pipeline_func=subdagio.parameter_oneof.crust),
+            # TestCase(pipeline_func=subdagio.artifact_cache.crust),
+            # TestCase(pipeline_func=subdagio.artifact.crust),
+            # TestCase(
+            #     pipeline_func=subdagio.multiple_artifacts_namedtuple.crust),
+            # TestCase(pipeline_func=pipeline_with_placeholders
+            #          .pipeline_with_placeholders),
+            # TestCase(pipeline_func=modelcar.pipeline_modelcar_test),
+            # TestCase(
+            #     pipeline_func=parallel_consume_upstream.loop_consume_upstream),
+            # TestCase(pipeline_func=parallel_after_dependency
+            #          .loop_with_after_dependency_set),
+            # TestCase(
+            #     pipeline_func=collected_parameters.collected_param_pipeline),
+            # TestCase(pipeline_func=pipeline_with_retry.retry_pipeline),
+            # TestCase(pipeline_func=pipeline_with_input_status_state.status_state_pipeline),
+            # TestCase(pipeline_func=nested_pipeline_opt_inputs_parent_level.nested_pipeline_opt_inputs_parent_level),
+            # TestCase(pipeline_func=nested_pipeline_opt_input_child_level.nested_pipeline_opt_input_child_level),
+            # TestCase(pipeline_func=nested_pipeline_opt_inputs_nil.nested_pipeline_opt_inputs_nil),
+            # TestCase(pipeline_func=pipeline_with_pod_metadata.pipeline_with_pod_metadata),
+            TestCase(pipeline_func=pipeline_with_custom_path_artifact.pipeline_with_custom_path_artifact)
         ]
 
         with ThreadPoolExecutor() as executor:

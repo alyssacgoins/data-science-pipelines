@@ -82,16 +82,31 @@ class Artifact:
         self.uri = uri or ''
         self.name = name or ''
         self.metadata = metadata or {}
+        self.custom_path = None
+
 
     @property
     def path(self) -> str:
         return self._get_path()
 
+    #todo: this is the external function to set the path
+    #todo: do we want this to be able to continue to set regular path var? or only custom path var? and what makes custom path var different from regular path var?
     @path.setter
     def path(self, path: str) -> None:
         self._set_path(path)
 
+    @property
+    def custom_path(self) ->str:
+        return self._set_custom_path()
+
+    @custom_path.setter
+    def custom_path(self, path: str) -> None:
+        self._set_custom_path(path)
+
+    #todo: here the path property returns the custom path if set --> otherwise, returns the regular path/
     def _get_path(self) -> Optional[str]:
+        if self.custom_path is not None:
+            return self.custom_path
         if self.uri.startswith(RemotePrefix.GCS.value):
             return _GCS_LOCAL_MOUNT_PREFIX + self.uri[len(RemotePrefix.GCS.value
                                                          ):]
@@ -108,8 +123,13 @@ class Artifact:
         # uri == path for local execution
         return self.uri
 
+    #todo: this is the internal function to set the path.
     def _set_path(self, path: str) -> None:
         self.uri = convert_local_path_to_remote_path(path)
+
+    #todo: what differentiates this from setting the path regularly?
+    def _set_custom_path(self, custom_path: str) -> None:
+        self.custom_path = custom_path
 
 
 def convert_local_path_to_remote_path(path: str) -> str:
