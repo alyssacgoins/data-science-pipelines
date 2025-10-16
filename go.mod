@@ -8,11 +8,11 @@ require (
 	github.com/argoproj/argo-workflows/v3 v3.6.7
 	github.com/aws/aws-sdk-go v1.55.5 // indirect
 	github.com/cenkalti/backoff v2.2.1+incompatible
-	github.com/eapache/go-resiliency v1.2.0
+	github.com/eapache/go-resiliency v1.3.0
 	github.com/fsnotify/fsnotify v1.8.0
-	github.com/go-openapi/errors v0.20.2
+	github.com/go-openapi/errors v0.21.0
 	github.com/go-openapi/runtime v0.21.1
-	github.com/go-openapi/strfmt v0.21.1
+	github.com/go-openapi/strfmt v0.21.10
 	github.com/go-openapi/swag v0.23.0
 	github.com/go-openapi/validate v0.20.3
 	github.com/go-sql-driver/mysql v1.8.1
@@ -98,7 +98,7 @@ require (
 	github.com/Masterminds/sprig/v3 v3.3.0 // indirect
 	github.com/antlr4-go/antlr/v4 v4.13.0 // indirect
 	github.com/argoproj/pkg v0.13.7-0.20240704113442-a69fd34a8117 // indirect
-	github.com/asaskevich/govalidator v0.0.0-20200907205600-7a23bdc65eef // indirect
+	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.6.3 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.16.30 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.17.10 // indirect
@@ -212,7 +212,7 @@ require (
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	github.com/zeebo/errs v1.4.0 // indirect
-	go.mongodb.org/mongo-driver v1.7.5 // indirect
+	go.mongodb.org/mongo-driver v1.13.1 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
 	go.opentelemetry.io/contrib/detectors/gcp v1.35.0 // indirect
