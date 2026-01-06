@@ -400,6 +400,7 @@ func executeV2(
 		return nil, nil, err
 	}
 	// TODO(Bobgy): should we log metadata per each artifact, or batched after uploading all artifacts.
+	//todo: error here.
 	outputArtifacts, err := uploadOutputArtifacts(ctx, executorInput, executorOutput, uploadOutputArtifactsOptions{
 		bucketConfig:   bucketConfig,
 		bucket:         bucket,
@@ -503,6 +504,7 @@ func execute(
 	publishLogs string,
 	customCAPath string,
 ) (*pipelinespec.ExecutorOutput, error) {
+	//todo: executing here.
 	if err := downloadArtifacts(ctx, executorInput, bucket, bucketConfig, namespace, k8sClient); err != nil {
 		return nil, err
 	}
@@ -643,6 +645,7 @@ func uploadOutputArtifacts(ctx context.Context, executorInput *pipelinespec.Exec
 					if errors.Is(err, os.ErrNotExist) {
 						glog.Warningf("Local filepath %q does not exist", localDir)
 					} else {
+						//todo: this is the previous failure point (before impl configmap certs).
 						return nil, fmt.Errorf("failed to upload output artifact %q to remote storage URI %q: %w", name, outputArtifact.Uri, err)
 					}
 				}
@@ -740,6 +743,7 @@ func downloadArtifacts(ctx context.Context, executorInput *pipelinespec.Executor
 
 			// Copy artifact to local storage.
 			copyErr := func(err error) error {
+				//todo: this is the current error point (after impl configmap certs).
 				return fmt.Errorf("failed to download input artifact %q from remote storage URI %q: %w", name, inputArtifact.Uri, err)
 			}
 			// TODO: Selectively copy artifacts for which .path was actually specified
@@ -762,6 +766,9 @@ func downloadArtifacts(ctx context.Context, executorInput *pipelinespec.Executor
 			if err != nil {
 				return copyErr(err)
 			}
+			//todo: hitting error here.
+			//todo: does the successful case download an artifact from the bucket?
+			//todo: what is the diff between upload and download here?
 			if err := objectstore.DownloadBlob(ctx, bucket, localPath, blobKey); err != nil {
 				return copyErr(err)
 			}

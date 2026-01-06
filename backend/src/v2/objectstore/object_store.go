@@ -89,6 +89,7 @@ func OpenBucket(ctx context.Context, k8sClient kubernetes.Interface, namespace s
 	return blob.OpenBucket(ctx, bucketURL)
 }
 
+// todo: this executes successfully for hello-pipeline
 func UploadBlob(ctx context.Context, bucket *blob.Bucket, localPath, blobPath string) error {
 	fileInfo, err := os.Stat(localPath)
 	if err != nil {
@@ -132,6 +133,7 @@ func DownloadBlob(ctx context.Context, bucket *blob.Bucket, localDir, blobDir st
 			if err == io.EOF {
 				break
 			}
+			//todo: hitting this error.
 			return fmt.Errorf("failed to list objects in remote storage %q: %w", blobDir, err)
 		}
 		if obj.IsDir {
