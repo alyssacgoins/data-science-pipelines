@@ -19,9 +19,11 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/kubeflow/pipelines/backend/src/v2/common/mlflow"
 	"github.com/stretchr/testify/require"
 
 	"github.com/kubeflow/pipelines/backend/src/apiserver/config/proxy"
+	"github.com/kubeflow/pipelines/backend/src/v2/common/plugins"
 
 	"github.com/kubeflow/pipelines/api/v2alpha1/go/pipelinespec"
 	"github.com/kubeflow/pipelines/kubernetes_platform/go/kubernetesplatform"
@@ -266,6 +268,7 @@ func Test_initPodSpecPatch_acceleratorConfig(t *testing.T) {
 			taskConfig := &TaskConfig{}
 
 			podSpec, err := initPodSpecPatch(
+				plugins.NoOpDispatcher{},
 				tt.args.container,
 				tt.args.componentSpec,
 				tt.args.executorInput,
@@ -389,6 +392,7 @@ func Test_initPodSpecPatch_resource_placeholders(t *testing.T) {
 	taskConfig := &TaskConfig{}
 
 	podSpec, err := initPodSpecPatch(
+		plugins.NoOpDispatcher{},
 		containerSpec,
 		componentSpec,
 		executorInput,
@@ -443,6 +447,7 @@ func Test_initPodSpecPatch_legacy_resources(t *testing.T) {
 	taskConfig := &TaskConfig{}
 
 	podSpec, err := initPodSpecPatch(
+		plugins.NoOpDispatcher{},
 		containerSpec,
 		componentSpec,
 		executorInput,
@@ -499,6 +504,7 @@ func Test_initPodSpecPatch_modelcar_input_artifact(t *testing.T) {
 	taskConfig := &TaskConfig{}
 
 	podSpec, err := initPodSpecPatch(
+		plugins.NoOpDispatcher{},
 		containerSpec,
 		componentSpec,
 		executorInput,
@@ -559,6 +565,7 @@ func Test_initPodSpecPatch_modelcar_input_artifact(t *testing.T) {
 // commands in the podSpec.
 func Test_initPodSpecPatch_publishLogs(t *testing.T) {
 	podSpec, err := initPodSpecPatch(
+		plugins.NoOpDispatcher{},
 		&pipelinespec.PipelineDeploymentConfig_PipelineContainerSpec{},
 		&pipelinespec.ComponentSpec{},
 		&pipelinespec.ExecutorInput{},
@@ -691,6 +698,7 @@ func Test_initPodSpecPatch_resourceRequests(t *testing.T) {
 			taskConfig := &TaskConfig{}
 
 			podSpec, err := initPodSpecPatch(
+				plugins.NoOpDispatcher{},
 				tt.args.container,
 				tt.args.componentSpec,
 				tt.args.executorInput,
@@ -753,6 +761,7 @@ func Test_initPodSpecPatch_TaskConfig_ForwardsResourcesOnly(t *testing.T) {
 
 	taskCfg := &TaskConfig{}
 	podSpec, err := initPodSpecPatch(
+		plugins.NoOpDispatcher{},
 		containerSpec,
 		componentSpec,
 		executorInput,
@@ -821,6 +830,7 @@ func Test_initPodSpecPatch_inputTaskFinalStatus(t *testing.T) {
 	}
 
 	podSpec, err := initPodSpecPatch(
+		plugins.NoOpDispatcher{},
 		containerSpec,
 		componentSpec,
 		executorInput,
@@ -1025,6 +1035,7 @@ func Test_initPodSpecPatch_WorkspaceRequiresRunName(t *testing.T) {
 	}
 	taskCfg := &TaskConfig{}
 	_, err := initPodSpecPatch(
+		plugins.NoOpDispatcher{},
 		containerSpec,
 		componentSpec,
 		executorInput,
@@ -1155,7 +1166,7 @@ func TestWorkspaceMount_PassthroughVolumes_CaptureOnly(t *testing.T) {
 	}
 	taskCfg := &TaskConfig{}
 	podSpec, err := initPodSpecPatch(
-		containerSpec, componentSpec, executorInput,
+		plugins.NoOpDispatcher{}, containerSpec, componentSpec, executorInput,
 		27, "test", "run", "my-run-name", "1", "false", "false", taskCfg, false, false, "", "ml-pipeline.kubeflow", "8887", "metadata-grpc-service.kubeflow.svc.local", "8080",
 	)
 	assert.Nil(t, err)
@@ -1198,7 +1209,7 @@ func TestWorkspaceMount_PassthroughVolumes_ApplyAndCapture(t *testing.T) {
 	}
 	taskCfg := &TaskConfig{}
 	podSpec, err := initPodSpecPatch(
-		containerSpec, componentSpec, executorInput,
+		plugins.NoOpDispatcher{}, containerSpec, componentSpec, executorInput,
 		27, "test", "run", "my-run-name", "1", "false", "false", taskCfg, false, false, "", "ml-pipeline.kubeflow", "8887", "metatadata-grpc-service.kubeflow.svc.local", "8080",
 	)
 	assert.Nil(t, err)
@@ -1268,7 +1279,7 @@ func TestWorkspaceMount_TriggeredByArtifactMetadata(t *testing.T) {
 
 	taskCfg := &TaskConfig{}
 	podSpec, err := initPodSpecPatch(
-		containerSpec, componentSpec, execInput,
+		plugins.NoOpDispatcher{}, containerSpec, componentSpec, execInput,
 		27, "test", "run", "my-run-name", "1", "false", "false", taskCfg, false, false, "", "ml-pipeline.kubeflow", "8887", "metadata-grpc-service.kubeflow.svc.local", "8080",
 	)
 	assert.Nil(t, err)
@@ -1314,6 +1325,7 @@ func Test_initPodSpecPatch_TaskConfig_Env_Passthrough_CaptureOnly(t *testing.T) 
 	executorInput := &pipelinespec.ExecutorInput{}
 	taskCfg := &TaskConfig{}
 	podSpec, err := initPodSpecPatch(
+		plugins.NoOpDispatcher{},
 		containerSpec,
 		componentSpec,
 		executorInput,
@@ -1365,6 +1377,7 @@ func Test_initPodSpecPatch_TaskConfig_Resources_Passthrough_ApplyAndCapture(t *t
 	executorInput := &pipelinespec.ExecutorInput{}
 	taskCfg := &TaskConfig{}
 	podSpec, err := initPodSpecPatch(
+		plugins.NoOpDispatcher{},
 		containerSpec,
 		componentSpec,
 		executorInput,
@@ -1447,6 +1460,7 @@ func Test_initPodSpecPatch_TaskConfig_Affinity_NodeSelector_Tolerations_Passthro
 	taskCfg := &TaskConfig{}
 
 	podSpec, err := initPodSpecPatch(
+		plugins.NoOpDispatcher{},
 		containerSpec,
 		componentSpec,
 		executorInput,
@@ -1550,6 +1564,7 @@ func Test_initPodSpecPatch_TaskConfig_Affinity_NodeSelector_Tolerations_ApplyAnd
 	taskCfg := &TaskConfig{}
 
 	podSpec, err := initPodSpecPatch(
+		plugins.NoOpDispatcher{},
 		containerSpec,
 		componentSpec,
 		executorInput,
@@ -1635,6 +1650,7 @@ func Test_initPodSpecPatch_mlPipelineServerConfig(t *testing.T) {
 	customPort := "9999"
 
 	podSpec, err := initPodSpecPatch(
+		plugins.NoOpDispatcher{},
 		&pipelinespec.PipelineDeploymentConfig_PipelineContainerSpec{},
 		&pipelinespec.ComponentSpec{},
 		&pipelinespec.ExecutorInput{},
@@ -1908,4 +1924,81 @@ func Test_provisionOutputs(t *testing.T) {
 			}
 		})
 	}
+}
+
+func Test_initPodSpecPatch_mlflowConfig(t *testing.T) {
+
+	proxy.InitializeConfigWithEmptyForTests()
+
+	mlflowCfgInject := "{\"endpoint\":\"test-endpoint\",\"workspace\":\"test-workspace\",\"parentRunId\":\"test-parent-id\",\"experimentId\":\"exp-id\",\"authType\":\"test-auth\",\"insecureSkipVerify\":true,\"injectUserEnvVars\":true}"
+	mlflowCfgNoInject := "{\"endpoint\":\"test-endpoint\",\"workspace\":\"test-workspace\",\"parentRunId\":\"test-parent-id\",\"experimentId\":\"exp-id\",\"authType\":\"test-auth\",\"insecureSkipVerify\":true,\"injectUserEnvVars\":false}"
+
+	envVars := []k8score.EnvVar{
+		{Name: "MLFLOW_RUN_ID", Value: ""},
+		{Name: "MLFLOW_TRACKING_URI", Value: "test-endpoint"},
+		{Name: "MLFLOW_WORKSPACE", Value: "test-workspace"},
+		{Name: "MLFLOW_TRACKING_AUTH", Value: "test-auth"},
+	}
+
+	tests := []struct {
+		name                   string
+		mlflowPluginEnabled    bool
+		mlflowRunID            string
+		mlflowRuntimeCfgEnvVar string
+		expectedEnvVar         []k8score.EnvVar
+	}{
+		{"mlflow plugin enabled & InjectUserEnvVars & run ID nonempty", true, "test-run-id", mlflowCfgInject, envVars},
+		{"mlflow plugin enabled & InjectEnvVars & runID empty", true, "", mlflowCfgInject, envVars},
+		{"mlflow plugin enabled & InjectiveEnvVars is false", true, "", mlflowCfgNoInject, []k8score.EnvVar{}},
+		{"mlflow plugin not enabled", false, "", mlflowCfgNoInject, []k8score.EnvVar{}},
+	}
+	for _, tt := range tests {
+		viper.Set("KFP_MLFLOW_CONFIG", tt.mlflowRuntimeCfgEnvVar)
+		var dispatcher plugins.TaskPluginDispatcher = plugins.NoOpDispatcher{}
+		if tt.mlflowPluginEnabled {
+			var err error
+			dispatcher, err = mlflow.NewDispatcher()
+			if err != nil {
+				t.Fatalf("failed to create mlflow dispatcher: %v", err)
+			}
+		}
+		//viper.Set("MLFLOW_RUN_ID", tt.mlflowRunID)
+		t.Run(tt.name, func(t *testing.T) {
+			containerSpec := &pipelinespec.PipelineDeploymentConfig_PipelineContainerSpec{Image: "python:3.11"}
+			componentSpec := &pipelinespec.ComponentSpec{}
+			executorInput := &pipelinespec.ExecutorInput{}
+			taskConfig := &TaskConfig{}
+
+			podSpec, err := initPodSpecPatch(
+				dispatcher,
+				containerSpec,
+				componentSpec,
+				executorInput,
+				27,
+				"test",
+				"0254beba-0be4-4065-8d97-7dc5e3adf300",
+				"my-run-name",
+				"1",
+				"false",
+				"false",
+				taskConfig,
+				false,
+				false,
+				"",
+				"ml-pipeline.kubeflow",
+				"8887",
+				"metadata-grpc-service.kubeflow.svc.local",
+				"8080",
+			)
+
+			assert.Nil(t, err)
+			assert.NotNil(t, podSpec)
+
+			containerEnvVars := podSpec.Containers[0].Env
+			//assert.Contains(t, envVars, tt.expectedEnvVar)
+			assert.ElementsMatch(t, tt.expectedEnvVar, containerEnvVars)
+
+		})
+	}
+
 }

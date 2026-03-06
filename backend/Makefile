@@ -6,24 +6,18 @@ TLS_ENABLED ?= "false"
 CERT_MANAGER_VERSION ?= v1.16.2
 
 # Container Build Params
-CONTAINER_ENGINE ?= $(shell \
-	if command -v docker >/dev/null 2>&1; then \
-		echo docker; \
-	elif command -v podman >/dev/null 2>&1; then \
-		echo podman; \
-	fi \
-)
+CONTAINER_ENGINE ?= podman
 
 # IMG_REGISTRY can be used to automatically prepend registry details. e.g. "quay.io/kubeflow/"
-IMG_REGISTRY ?=
-IMG_TAG_APISERVER         ?= apiserver
+IMG_REGISTRY ?= quay.io/rh-ee-agoins/
+IMG_TAG_APISERVER         ?= apiserver:101
 IMG_TAG_PERSISTENCEAGENT  ?= persistence-agent
 IMG_TAG_CACHESERVER       ?= cache-server
-IMG_TAG_SCHEDULEDWORKFLOW ?= scheduledworkflow
+IMG_TAG_SCHEDULEDWORKFLOW ?= scheduledworkflow:101
 IMG_TAG_VIEWERCONTROLLER  ?= viewercontroller
 IMG_TAG_VISUALIZATION     ?= visualization
-IMG_TAG_DRIVER            ?= kfp-driver
-IMG_TAG_LAUNCHER          ?= kfp-launcher
+IMG_TAG_DRIVER            ?= kfp-driver:101
+IMG_TAG_LAUNCHER          ?= kfp-launcher:101
 IMG_TAG_WEBHOOK_PROXY     ?= domain.local/kfp/webhook-proxy:latest
 
 # Whenever build command for any of the binaries change, we should update them both here and in backend/Dockerfiles.
