@@ -17,6 +17,10 @@ on:
       - main
       - stable
       - 'rhoai-*'
+  workflow_run:
+    workflows: [ "Gatekeeper" ]
+    types:
+      - completed
 
   workflow_dispatch:
     inputs:
@@ -59,7 +63,22 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  cancel-if-gatekeeper-failed:
+    if: ${{ github.event.workflow_run.conclusion != 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel Workflow
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.actions.cancelWorkflowRun({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: context.runId,
+            })
+
   build:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     uses: ./.github/workflows/image-builds.yml
 
   api-test-standalone:
@@ -231,6 +250,7 @@ jobs:
           deployment_mode: ${{ steps.deploy.outputs.deployment_mode }}
 
   api-test-multi-user:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     needs: build
     runs-on: ubuntu-latest
     strategy:
