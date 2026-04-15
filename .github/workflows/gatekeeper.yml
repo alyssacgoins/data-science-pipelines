@@ -1,0 +1,43 @@
+# Validate
+name: Gatekeeper
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  # Validate the linked issue in the PR body contains /ready command
+  #todo: can anyone add "ready" or only approved users?
+  validate-linked-issue:
+    #todo: for the purposes of testing on my fork, I've disabled this check.
+    #    if: |
+    #      github.event.pull_request.author_association != 'MEMBER' &&
+    #      github.event.pull_request.author_association != 'OWNER'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install Dependencies
+        run: |
+          pip install PyGithub
+
+      - name: Verify Linked Issue is Valid
+        id: verify
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          python3 .github/scripts/verify-linked-issue.py
+
+      - name: Close PR on failure
+        if: always() && steps.verify.outcome == 'failure'
+        run: gh pr close "${{ github.event.pull_request.number }}" --comment "Closing this PR automatically. Link a valid issue in the PR body and then reopen."
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
