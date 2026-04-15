@@ -1,0 +1,49 @@
+# Validate
+name: Pre-CI PR Verification
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  # JOB 1: Performs the check for non-members
+  validate-linked-issue:
+#    if: |
+#      github.event.pull_request.author_association != 'MEMBER' &&
+#      github.event.pull_request.author_association != 'OWNER'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          #todo: verify this version
+          python-version: "3.10"
+
+      - name: Install Dependencies
+        run: |
+          pip install PyGithub
+
+      - name: Verify Linked Issue is Valid
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          python3 .github/scripts/verify-linked-issue.py
+
+    # todo: post a comment if the check fails
+
+  # JOB 2: Posts a comment only if the author IS a member
+#  skip-notification:
+#    if: |
+#      github.event.pull_request.author_association == 'MEMBER' ||
+#      github.event.pull_request.author_association == 'OWNER'
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Post skip message
+#        uses: thollander/actions-comment-pull-request@v3
+#        with:
+#          message: |
+#            👋 Hello! Since you are a member of the Kubeflow organization, the "Linked Issue" check has been automatically bypassed for this PR.
