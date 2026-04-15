@@ -3,21 +3,34 @@ import os
 import re
 import sys
 
-from github import Github
+from github import Auth, Github
+
+# removes hidden section of PR body.
+def clean_pr_body(body: str) -> str:
+    if not body:
+        return ""
+    clean_text = re.sub(r'<!--.*?-->', '', body, flags=re.DOTALL)
+    return clean_text.strip()
+
 
 def main() -> int:
     # Retrieve env vars provided by GH Action workflow
     token = os.getenv("GITHUB_TOKEN")
     pr_num = int(os.getenv("PR_NUMBER"))
+    #todo: this var necessary for testing purposes and can utlimately be removed.
+    repo_name = os.getenv("GITHUB_REPOSITORY")
+    print(f"Verifying linked issues for PR #{pr_num} in {repo_name}")
 
-    g = Github(token)
-    #todo: what is the func expecting for input formatting?
-    repo = g.get_repo("kubeflow/pipelines")
+    g = Github(auth=Auth.Token(token))
+    repo = g.get_repo(repo_name)
     pr = repo.get_pull(pr_num)
 
     # 1. Parse PR body for linked issues (e.g., #123 or Fixes #123)
-    pr_body = pr.body or ""
+    pr_body_original = pr.body or ""
+    pr_body = clean_pr_body(pr_body_original)
+
     issue_numbers = re.findall(r"(?:#|issues\/)(\d+)", pr_body)
+    print(f"Found issue numbers: {issue_numbers}")
 
     if not issue_numbers:
         print('ERROR: No linked issues found in the PR description.')
@@ -27,7 +40,6 @@ def main() -> int:
     # If there is more than one issue linked, each issue must be marked /ready
     found_ready = False
     for issue_num in issue_numbers:
-        #todo: case in which issue_num cannot be converted into an int?
         issue = repo.get_issue(int(issue_num))
         comments = issue.get_comments()
 
@@ -44,11 +56,9 @@ def main() -> int:
         print("ERROR: The linked issue(s) must have a '/ready' command.")
         return 1
 
-    #todo: add successful return message.
-    print()
+    print(f'Successfully verified linked issues: {issue_numbers}')
     return 0
 
 if __name__ == "__main__":
     sys.exit(main())
-
 
