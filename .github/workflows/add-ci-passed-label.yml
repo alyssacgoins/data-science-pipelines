@@ -20,6 +20,9 @@ permissions:
   issues: write
 
 jobs:
+  gatekeeper:
+    uses: ./.github/workflows/wait-for-gatekeeper.yml
+
   fetch_data:
     name: Fetch PR eligibility
     runs-on: ubuntu-latest
