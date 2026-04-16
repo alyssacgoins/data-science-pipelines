@@ -1,0 +1,60 @@
+name: Wait for Gatekeeper
+
+on:
+  workflow_call: {}
+
+jobs:
+  wait:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for Gatekeeper result
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          EVENT="${{ github.event_name }}"
+
+          if [ "$EVENT" = "pull_request" ] || [ "$EVENT" = "pull_request_target" ]; then
+            SHA="${{ github.event.pull_request.head.sha }}"
+          elif [ "$EVENT" = "workflow_run" ]; then
+            SHA="${{ github.event.workflow_run.head_sha }}"
+          else
+            echo "Event '${EVENT}' is not PR-related, skipping Gatekeeper check"
+            exit 0
+          fi
+          REPO="${{ github.repository }}"
+          CHECK_NAME="validate-linked-issue"
+          TIMEOUT=600
+          INTERVAL=15
+          ELAPSED=0
+
+          echo "Waiting for '${CHECK_NAME}' check on ${SHA}..."
+
+          while [ $ELAPSED -lt $TIMEOUT ]; do
+            RESULT=$(gh api "repos/${REPO}/commits/${SHA}/check-runs?per_page=100" \
+              --jq "[.check_runs[] | select(.name == \"${CHECK_NAME}\")] | sort_by(.started_at) | last | \"\(.status) \(.conclusion)\"" \
+              2>/dev/null || true)
+
+            if [ -n "$RESULT" ] && [ "$RESULT" != "null null" ]; then
+              RUN_STATUS=$(echo "$RESULT" | awk '{print $1}')
+              CONCLUSION=$(echo "$RESULT" | awk '{print $2}')
+
+              if [ "$RUN_STATUS" = "completed" ]; then
+                if [ "$CONCLUSION" = "success" ]; then
+                  echo "Gatekeeper passed"
+                  exit 0
+                else
+                  echo "Gatekeeper failed (conclusion: $CONCLUSION)"
+                  exit 1
+                fi
+              fi
+              echo "Gatekeeper: status=${RUN_STATUS} (${ELAPSED}s elapsed, polling every ${INTERVAL}s)"
+            else
+              echo "Gatekeeper check not found yet (${ELAPSED}s elapsed, polling every ${INTERVAL}s)"
+            fi
+
+            sleep $INTERVAL
+            ELAPSED=$((ELAPSED + INTERVAL))
+          done
+
+          echo "Timed out waiting for Gatekeeper after ${TIMEOUT}s"
+          exit 1
