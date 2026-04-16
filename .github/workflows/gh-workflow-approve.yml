@@ -9,6 +9,12 @@ on:
     types:
       - labeled
       - synchronize
+  workflow_run:
+    id: gatekeeper
+    workflows: [ "Gatekeeper" ]
+    types:
+      - completed
+
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event.number }}
@@ -21,6 +27,18 @@ jobs:
     continue-on-error: true
 
     steps:
+
+      - name: cancel-on-gatekeeper-failure
+        if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion != 'success' }}
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.actions.cancelWorkflowRun({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: context.runId,
+            })
+
       - name: Check if author is a Kubeflow GitHub member
         id: membership-check
         env:

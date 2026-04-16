@@ -35,9 +35,9 @@ jobs:
         run: |
           python3 .github/scripts/verify-linked-issue.py
 
-      - name: Close PR on failure
-        if: always() && steps.verify.outcome == 'failure'
-        run: gh pr close "${{ github.event.pull_request.number }}" --comment "Closing this PR automatically. Link a valid issue in the PR body and then reopen."
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
+#      - name: Close PR on failure
+#        if: always() && steps.verify.outcome == 'failure'
+#        run: gh pr close "${{ github.event.pull_request.number }}" --comment "Closing this PR automatically. Link a valid issue in the PR body and then reopen."
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#          PR_NUMBER: ${{ github.event.pull_request.number }}
