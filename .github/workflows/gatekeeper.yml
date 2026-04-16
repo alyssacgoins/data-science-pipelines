@@ -35,6 +35,24 @@ jobs:
         run: |
           python3 .github/scripts/verify-linked-issue.py
 
+      - name: Retrieve Workflow IDs if Validation Failed
+        id: workflow-list
+        if: steps.verify.outcome == 'failure'
+        run: |
+          ids=$(ls .github/workflows/ \
+            | grep -v -e '^cancel\.yml$' -e '^gatekeeper\.yml$' \
+            | paste -sd ',' -)
+          echo "ids=$ids" >> "$GITHUB_OUTPUT"
+
+      - name: Cancel Workflows on Validation Failure
+        id: cancel
+        if: steps.verify.outcome == 'failure'
+        uses: styfle/cancel-workflow-action
+        with:
+          workflow_id: ${{ steps.workflow-list.outputs.ids }}
+
+
+
 #      - name: Close PR on failure
 #        if: always() && steps.verify.outcome == 'failure'
 #        run: gh pr close "${{ github.event.pull_request.number }}" --comment "Closing this PR automatically. Link a valid issue in the PR body and then reopen."

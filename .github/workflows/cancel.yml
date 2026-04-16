@@ -1,10 +1,10 @@
 name: Cancel
-on:
-  workflow_run:
-    id: gatekeeper
-    workflows: [ "Gatekeeper" ]
-    types:
-      - completed
+on: []
+#  workflow_run:
+#    id: gatekeeper
+#    workflows: [ "Gatekeeper" ]
+#    types:
+#      - completed
 
 jobs:
   cancel:
