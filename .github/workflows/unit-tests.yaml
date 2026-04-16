@@ -11,15 +11,14 @@ on:
       - closed
       - synchronize
   workflow_dispatch:
-  workflow_run:
-    id: gatekeeper
-    workflows: [ "Gatekeeper" ]
-    types:
-      - completed
 env:
   RESOURCES_DIR: ${{ github.workspace }}/.github/resources
 jobs:
+  gatekeeper:
+    uses: ./.github/workflows/wait-for-gatekeeper.yml
+
   functest:
+    needs: gatekeeper
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

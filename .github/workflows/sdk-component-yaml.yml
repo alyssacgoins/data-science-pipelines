@@ -17,14 +17,13 @@ on:
       - '.github/workflows/sdk-component-yaml.yml'
       - '!**/*.md'
       - '!**/OWNERS'
-  workflow_run:
-    id: gatekeeper
-    workflows: [ "Gatekeeper" ]
-    types:
-      - completed
 
 jobs:
+  gatekeeper:
+    uses: ./.github/workflows/wait-for-gatekeeper.yml
+
   test-component-yaml-kfp:
+    needs: gatekeeper
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout code

@@ -32,11 +32,6 @@ on:
         default: false
         description: 'Dry run mode - build images without pushing to registry or creating tags.'
         required: false
-  workflow_run:
-    id: gatekeeper
-    workflows: [ "Gatekeeper" ]
-    types:
-      - completed
 jobs:
   build-images-for-release:
     strategy:

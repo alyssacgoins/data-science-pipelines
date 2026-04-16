@@ -12,11 +12,6 @@ on:
         default: 'vx.y.z'
         description: 'DSP Tag'
         required: true
-  workflow_run:
-    id: gatekeeper
-    workflows: [ "Gatekeeper" ]
-    types:
-      - completed
 env:
   IMAGE_SERVER: quay.io/opendatahub/ds-pipelines-api-server
   IMAGE_UI: quay.io/opendatahub/ds-pipelines-frontend

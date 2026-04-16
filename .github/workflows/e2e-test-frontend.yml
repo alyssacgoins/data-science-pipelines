@@ -21,14 +21,12 @@ on:
       - '!**/*.md'
       - '!**/OWNERS'
 
-  workflow_run:
-    id: gatekeeper
-    workflows: [ "Gatekeeper" ]
-    types:
-      - completed
-
 jobs:
+  gatekeeper:
+    uses: ./.github/workflows/wait-for-gatekeeper.yml
+
   build:
+    needs: gatekeeper
     uses: ./.github/workflows/image-builds.yml
 
   frontend-integration-test:

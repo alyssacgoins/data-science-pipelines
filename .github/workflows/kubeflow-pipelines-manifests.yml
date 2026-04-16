@@ -13,13 +13,13 @@ on:
       - 'manifests/kustomize/**'
       - '!**/*.md'
       - '!**/OWNERS'
-  workflow_run:
-    workflows: [ "Gatekeeper" ]
-    types:
-      - completed
 
 jobs:
+  gatekeeper:
+    uses: ./.github/workflows/wait-for-gatekeeper.yml
+
   kubeflow-pipelines-manifests:
+    needs: gatekeeper
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code

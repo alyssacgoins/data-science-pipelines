@@ -11,16 +11,15 @@ on:
       - reopened
       - closed
       - synchronize
-  workflow_run:
-    id: gatekeeper
-    workflows: [ "Gatekeeper" ]
-    types:
-      - completed
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 jobs:
+  gatekeeper:
+    uses: ./.github/workflows/wait-for-gatekeeper.yml
+
   upload-data:
+    needs: gatekeeper
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

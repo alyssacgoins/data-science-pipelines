@@ -4,14 +4,13 @@ name: CI Check
 on:
   pull_request_target:
     types: [opened, synchronize, reopened, labeled, unlabeled]
-  workflow_run:
-    id: gatekeeper
-    workflows: [ "Stable Merge Integration Test Check", "Gatekeeper" ] # Triggers when "Stable Merge Integration Test Check" succeeds, or "Gatekeeper" completes
-    types: [completed]
-    branches: [stable]
 
 jobs:
+  gatekeeper:
+    uses: ./.github/workflows/wait-for-gatekeeper.yml
+
   check_ci_status:
+    needs: gatekeeper
     runs-on: ubuntu-latest
     permissions:
       checks: read
