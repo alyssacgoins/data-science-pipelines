@@ -40,7 +40,7 @@ jobs:
         if: steps.verify.outcome == 'failure'
         run: |
           ids=$(ls .github/workflows/ \
-            | grep -v -e '^cancel\.yml$' -e '^gatekeeper\.yml$' \
+            | grep -v -e '^cancel\.yml$' -e '^pr-gatekeeper\.yml$' \
             | paste -sd ',' -)
           echo "ids=$ids" >> "$GITHUB_OUTPUT"
 
