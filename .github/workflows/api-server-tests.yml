@@ -18,6 +18,7 @@ on:
       - stable
       - 'rhoai-*'
   workflow_run:
+    id: gatekeeper
     workflows: [ "Gatekeeper" ]
     types:
       - completed
@@ -63,8 +64,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  cancel-if-gatekeeper-failed:
-    if: ${{ github.event.workflow_run.conclusion != 'success' }}
+  cancel-on-gatekeeper-failure:
+    if: ${{ github.event.gatekeeper.conclusion != 'success' }}
     runs-on: ubuntu-latest
     steps:
       - name: Cancel Workflow
@@ -78,7 +79,6 @@ jobs:
             })
 
   build:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     uses: ./.github/workflows/image-builds.yml
 
   api-test-standalone:

@@ -15,10 +15,8 @@ on:
       - 'test/presubmit-backend-visualization.sh'
       - '!**/*.md'
       - '!**/OWNERS'
-  workflow_run:
-    workflows: [ "Gatekeeper" ]
-    types:
-      - completed
+
+
 
 jobs:
   backend-visualization-test:
