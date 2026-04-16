@@ -9,7 +9,12 @@ name: pre-commit
 #      - master
 
 # This workflow is disabled in downstream because we require linting upstream.
-on: []
+on:
+  workflow_run:
+    id: gatekeeper
+    workflows: [ "Gatekeeper" ]
+    types:
+      - completed
 
 jobs:
   pre-commit:

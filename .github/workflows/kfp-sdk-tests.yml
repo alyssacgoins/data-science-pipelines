@@ -16,6 +16,10 @@ on:
       - '.github/workflows/kfp-sdk-tests.yml'
       - '!**/*.md'
       - '!**/OWNERS'
+  workflow_run:
+    workflows: [ "Gatekeeper" ]
+    types:
+      - completed
 
 concurrency:
   group: sdk-tests-${{ github.event.pull_request.number || github.ref }}

@@ -5,7 +5,8 @@ on:
   pull_request_target:
     types: [opened, synchronize, reopened, labeled, unlabeled]
   workflow_run:
-    workflows: [ "Stable Merge Integration Test Check" ] # Triggers when "Stable Merge Integration Test Check" succeeds
+    id: gatekeeper
+    workflows: [ "Stable Merge Integration Test Check", "Gatekeeper" ] # Triggers when "Stable Merge Integration Test Check" succeeds, or "Gatekeeper" completes
     types: [completed]
     branches: [stable]
 

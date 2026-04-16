@@ -16,6 +16,12 @@ on:
         description: 'Set latest tag'
         required: false
 
+  workflow_run:
+    id: gatekeeper
+    workflows: [ "Gatekeeper" ]
+    types:
+      - completed
+
 env:
   TARGET_IMAGE_TAG: ${{ inputs.target_tag }}
   IMAGE_REGISTRY: ghcr.io

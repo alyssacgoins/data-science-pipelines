@@ -12,6 +12,12 @@ on:
         description: 'A description of my output'
         value: ${{ jobs.image-build.outputs.registry }}
 
+  workflow_run:
+    id: gatekeeper
+    workflows: [ "Gatekeeper" ]
+    types:
+      - completed
+
 env:
   IMAGE_TAG: "latest"
   REGISTRY: "kind-registry:5000"

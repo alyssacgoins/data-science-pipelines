@@ -11,6 +11,11 @@ on:
   schedule:
     # Every Friday at 19:39
     - cron: '39 19 * * 5'
+  workflow_run:
+    id: gatekeeper
+    workflows: [ "Gatekeeper" ]
+    types:
+      - completed
 
 jobs:
   build:

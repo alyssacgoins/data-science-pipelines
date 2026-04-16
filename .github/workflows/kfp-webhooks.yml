@@ -17,6 +17,10 @@ on:
       - 'backend/**'
       - '!**/*.md'
       - '!**/OWNERS'
+  workflow_run:
+    workflows: [ "Gatekeeper" ]
+    types:
+      - completed
 
 jobs:
   build:

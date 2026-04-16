@@ -16,6 +16,11 @@ on:
       - '.github/workflows/sdk-isort.yml'
       - '!**/*.md'
       - '!**/OWNERS'
+  workflow_run:
+    id: gatekeeper
+    workflows: [ "Gatekeeper" ]
+    types:
+      - completed
 
 jobs:
   test-isort-kfp-sdk:

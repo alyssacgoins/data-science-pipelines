@@ -21,6 +21,11 @@ on:
       - '!**/*.md'
       - '!**/OWNERS'
 
+  workflow_run:
+    workflows: [ "Gatekeeper" ]
+    types:
+      - completed
+
 concurrency:
   group: sdk-client-tests-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true

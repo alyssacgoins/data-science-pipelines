@@ -1,0 +1,31 @@
+name: Cancel
+on: []
+#  workflow_run:
+#    id: gatekeeper
+#    workflows: [ "Gatekeeper" ]
+#    types:
+#      - completed
+
+jobs:
+  cancel:
+    name: 'Cancel Previous Runs'
+    if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion != 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/workflows
+          sparse-checkout-cone-mode: false
+
+      - name: Build workflow list
+        id: workflows
+        run: |
+          ids=$(ls .github/workflows/ \
+            | grep -v -e '^cancel\.yml$' -e '^gatekeeper\.yml$' \
+            | paste -sd ',' -)
+          echo "ids=$ids" >> "$GITHUB_OUTPUT"
+
+      - uses: styfle/cancel-workflow-action
+        with:
+          workflow_id: ${{ steps.workflows.outputs.ids }}

@@ -52,6 +52,12 @@ on:
         required: true
         type: string
 
+  workflow_run:
+    id: gatekeeper
+    workflows: [ "Gatekeeper" ]
+    types:
+      - completed
+
 concurrency:
   group: e2e-tests-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true

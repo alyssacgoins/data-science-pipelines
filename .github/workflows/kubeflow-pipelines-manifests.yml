@@ -13,6 +13,10 @@ on:
       - 'manifests/kustomize/**'
       - '!**/*.md'
       - '!**/OWNERS'
+  workflow_run:
+    workflows: [ "Gatekeeper" ]
+    types:
+      - completed
 
 jobs:
   kubeflow-pipelines-manifests:
