@@ -17,7 +17,11 @@ on:
       - '!**/OWNERS'
 
 jobs:
+  gatekeeper:
+    uses: ./.github/workflows/wait-for-gatekeeper.yml
+
   kfp-kubernetes-library-test:
+    needs: gatekeeper
     runs-on: ubuntu-24.04
     strategy:
       matrix:

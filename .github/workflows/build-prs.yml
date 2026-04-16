@@ -1,7 +1,7 @@
 name: Build images for PRs
 on:
   workflow_run:
-    workflows: ["Trigger PR CI"]
+    workflows: [ "Trigger PR CI" ]
     types:
       - completed
 env:
@@ -11,7 +11,11 @@ env:
   GH_USER_EMAIL: 140449482+dsp-developers@users.noreply.github.com
   GH_USER_NAME: dsp-developers
 jobs:
+  gatekeeper:
+    uses: ./.github/workflows/wait-for-gatekeeper.yml
+
   fetch-data:
+    needs: gatekeeper
     name: Fetch workflow payload
     runs-on: ubuntu-latest
     if: >

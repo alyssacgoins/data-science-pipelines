@@ -13,7 +13,11 @@ on:
     - cron: '39 19 * * 5'
 
 jobs:
+  gatekeeper:
+    uses: ./.github/workflows/wait-for-gatekeeper.yml
+
   build:
+    needs: gatekeeper
     name: Build
     runs-on: ubuntu-24.04
     steps:

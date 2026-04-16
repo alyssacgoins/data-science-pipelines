@@ -21,7 +21,11 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  gatekeeper:
+    uses: ./.github/workflows/wait-for-gatekeeper.yml
+
   sdk-unit-tests:
+    needs: gatekeeper
     runs-on: ubuntu-latest
     strategy:
       matrix:

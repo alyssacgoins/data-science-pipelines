@@ -26,7 +26,11 @@ on:
       - '.github/workflows/sdk-yapf.yml'
 
 jobs:
+  gatekeeper:
+    uses: ./.github/workflows/wait-for-gatekeeper.yml
+
   yapf-sdk:
+    needs: gatekeeper
     runs-on: ubuntu-latest
 
     steps:

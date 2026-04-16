@@ -14,7 +14,11 @@ on:
 env:
   RESOURCES_DIR: ${{ github.workspace }}/.github/resources
 jobs:
+  gatekeeper:
+    uses: ./.github/workflows/wait-for-gatekeeper.yml
+
   functest:
+    needs: gatekeeper
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

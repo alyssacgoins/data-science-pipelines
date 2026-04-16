@@ -16,7 +16,11 @@ on:
       - '!**/OWNERS'
 
 jobs:
+  gatekeeper:
+    uses: ./.github/workflows/wait-for-gatekeeper.yml
+
   all-gcpc-tests:
+    needs: gatekeeper
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout code
