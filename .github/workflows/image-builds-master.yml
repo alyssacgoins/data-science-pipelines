@@ -1,7 +1,7 @@
 name: Build and Push for master
 
 # This workflow is disabled for downstream.
-on:
+on: []
 #  push:
 #    branches:
 #      - master
