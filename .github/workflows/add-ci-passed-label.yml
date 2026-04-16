@@ -11,8 +11,7 @@ on:
       - labeled
       - unlabeled
   workflow_run:
-    id: gatekeeper
-    workflows: [ "CI Check", "Gatekeeper" ]
+    workflows: [ "CI Check" ]
     types:
       - completed
 

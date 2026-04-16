@@ -24,14 +24,13 @@ on:
       - 'sdk/python/**'
       - 'test/presubmit-yapf-sdk.sh'
       - '.github/workflows/sdk-yapf.yml'
-  workflow_run:
-    id: gatekeeper
-    workflows: [ "Gatekeeper" ]
-    types:
-      - completed
 
 jobs:
+  gatekeeper:
+    uses: ./.github/workflows/wait-for-gatekeeper.yml
+
   yapf-sdk:
+    needs: gatekeeper
     runs-on: ubuntu-latest
 
     steps:

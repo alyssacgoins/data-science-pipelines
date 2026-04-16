@@ -28,14 +28,13 @@ on:
       - 'test_data/sdk_compiled_pipelines/**'
       - '!**/*.md'
       - '!**/OWNERS'
-  workflow_run:
-    id: gatekeeper
-    workflows: [ "Gatekeeper" ]
-    types:
-      - completed
 
 jobs:
+  gatekeeper:
+    uses: ./.github/workflows/wait-for-gatekeeper.yml
+
   build:
+    needs: gatekeeper
     uses: ./.github/workflows/image-builds.yml
 
   upgrade-test:

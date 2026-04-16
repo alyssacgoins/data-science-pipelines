@@ -24,17 +24,16 @@ on:
       - '!**/*.md'
       - '!**/OWNERS'
 
-  workflow_run:
-    workflows: [ "Gatekeeper" ]
-    types:
-      - completed
-
 concurrency:
   group: legacy-integration-v2-tests-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
+  gatekeeper:
+    uses: ./.github/workflows/wait-for-gatekeeper.yml
+
   build:
+    needs: gatekeeper
     uses: ./.github/workflows/image-builds.yml
 
   api-integration-tests-v2:

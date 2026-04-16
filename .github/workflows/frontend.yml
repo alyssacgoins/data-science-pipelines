@@ -22,14 +22,12 @@ on:
       - '!**/OWNERS'
       - 'backend/src/apiserver/config/sample_config.json'
 
-  workflow_run:
-    id: gatekeeper
-    workflows: [ "Gatekeeper" ]
-    types:
-      - completed
-
 jobs:
+  gatekeeper:
+    uses: ./.github/workflows/wait-for-gatekeeper.yml
+
   frontend-tests:
+    needs: gatekeeper
     runs-on: ubuntu-latest
 
     steps:

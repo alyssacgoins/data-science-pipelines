@@ -23,13 +23,12 @@ on:
       - "!**/*.md"
       - "!**/OWNERS"
 
-  workflow_run:
-    workflows: [ "Gatekeeper" ]
-    types:
-      - completed
-
 jobs:
+  gatekeeper:
+    uses: ./.github/workflows/wait-for-gatekeeper.yml
+
   build:
+    needs: gatekeeper
     uses: ./.github/workflows/image-builds.yml
 
   kfp-kubernetes-native-migration-tests:

@@ -16,17 +16,17 @@ on:
       - '.github/workflows/kfp-sdk-tests.yml'
       - '!**/*.md'
       - '!**/OWNERS'
-  workflow_run:
-    workflows: [ "Gatekeeper" ]
-    types:
-      - completed
 
 concurrency:
   group: sdk-tests-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
+  gatekeeper:
+    uses: ./.github/workflows/wait-for-gatekeeper.yml
+
   sdk-tests:
+    needs: gatekeeper
     runs-on: ubuntu-latest
     timeout-minutes: 50
     strategy:

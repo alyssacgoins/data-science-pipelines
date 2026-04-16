@@ -7,11 +7,6 @@ on:
     types: [opened, synchronize, reopened, edited]
   issue_comment:
     types: [created, edited]
-  workflow_run:
-    id: gatekeeper
-    workflows: [ "Gatekeeper" ]
-    types:
-      - completed
 
 permissions:
   issues: write
@@ -22,8 +17,12 @@ env:
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
+  gatekeeper:
+    uses: ./.github/workflows/wait-for-gatekeeper.yml
+
   # Job to handle /integration-tests-ok command
   process-integration-command:
+    needs: gatekeeper
     runs-on: ubuntu-latest
     if: ${{ github.event.issue.pull_request && contains(github.event.comment.body, '/integration-tests-ok') }}
     steps:
@@ -93,6 +92,7 @@ jobs:
 
   # Job to remove label on new commits and check for label presence
   integration-test-check:
+    needs: gatekeeper
     name: Integration Test Verification
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request' || contains(github.event.comment.body, '/integration-tests-ok')

@@ -16,12 +16,6 @@ on:
         required: false
         default: ''
 
-  workflow_run:
-    id: gatekeeper
-    workflows: [ "Gatekeeper" ]
-    types:
-      - completed
-
 env:
   QUAY_ORG: opendatahub
   QUAY_ID: ${{ secrets.QUAY_ROBOT_USERNAME }}

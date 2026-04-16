@@ -1,23 +1,20 @@
 name: pre-commit
 
-#on:
-#  push:
-#    branches:
-#      - master
-#  pull_request:
-#    branches:
-#      - master
-
 # This workflow is disabled in downstream because we require linting upstream.
 on:
-  workflow_run:
-    id: gatekeeper
-    workflows: [ "Gatekeeper" ]
-    types:
-      - completed
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
 
 jobs:
+  gatekeeper:
+    uses: ./.github/workflows/wait-for-gatekeeper.yml
+
   pre-commit:
+    needs: gatekeeper
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6

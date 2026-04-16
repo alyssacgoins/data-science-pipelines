@@ -18,14 +18,13 @@ on:
       - 'test/presubmit-backend-test.sh'
       - '!**/*.md'
       - '!**/OWNERS'
-  workflow_run:
-    id: gatekeeper
-    workflows: [ "Gatekeeper" ]
-    types:
-      - completed
 
 jobs:
+  gatekeeper:
+    uses: ./.github/workflows/wait-for-gatekeeper.yml
+
   backend-tests:
+    needs: gatekeeper
     runs-on: ubuntu-latest
 
     steps:

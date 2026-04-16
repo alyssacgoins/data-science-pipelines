@@ -56,11 +56,6 @@ on:
         default: 'true'
         description: 'Stop running entire Workflow if a single build fails'
         required: true
-  workflow_run:
-    id: gatekeeper
-    workflows: [ "Gatekeeper" ]
-    types:
-      - completed
 env:
   SOURCE_BRANCH: ${{ inputs.src_branch }}
   QUAY_ORG: ${{ inputs.quay_org }}

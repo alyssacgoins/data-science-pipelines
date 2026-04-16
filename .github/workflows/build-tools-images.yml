@@ -2,23 +2,18 @@ name: Build tools images
 
 # This workflow is disabled for downstream.
 on:
-  workflow_run:
-    id: gatekeeper
-    workflows: [ "Gatekeeper" ]
-    types:
-      - completed
-#  push:
-#    branches:
-#      - master
-#      - main
-#      - stable
-#      - 'release-*'
-#      - 'rhoai-*'
-#  pull_request:
-#    branches:
-#      - master
-#      - 'release-*'
-#  workflow_dispatch: {}
+  push:
+    branches:
+      - master
+      - main
+      - stable
+      - 'release-*'
+      - 'rhoai-*'
+  pull_request:
+    branches:
+      - master
+      - 'release-*'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -34,7 +29,11 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  gatekeeper:
+    uses: ./.github/workflows/wait-for-gatekeeper.yml
+
   build-tools:
+    needs: gatekeeper
     name: Build tools images
     runs-on: ubuntu-latest
     steps:

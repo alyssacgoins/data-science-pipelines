@@ -16,14 +16,12 @@ on:
       - '!**/*.md'
       - '!**/OWNERS'
 
-  workflow_run:
-    id: gatekeeper
-    workflows: [ "Gatekeeper" ]
-    types:
-      - completed
-
 jobs:
+  gatekeeper:
+    uses: ./.github/workflows/wait-for-gatekeeper.yml
+
   backend-visualization-test:
+    needs: gatekeeper
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code

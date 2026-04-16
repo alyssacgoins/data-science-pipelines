@@ -10,18 +10,16 @@ on:
       - labeled
       - synchronize
 
-  workflow_run:
-    id: gatekeeper
-    workflows: [ "Gatekeeper" ]
-    types:
-      - completed
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event.number }}
   cancel-in-progress: true
 
 jobs:
+  gatekeeper:
+    uses: ./.github/workflows/wait-for-gatekeeper.yml
+
   ok-to-test:
+    needs: gatekeeper
     if: contains(github.event.pull_request.labels.*.name, 'ok-to-test') || github.event_name == 'pull_request_target'
     runs-on: ubuntu-latest
     continue-on-error: true

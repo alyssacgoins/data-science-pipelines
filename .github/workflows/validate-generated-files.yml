@@ -24,14 +24,13 @@ on:
       - '!**/*.md'
       - '!**/OWNERS'
       - 'VERSION'
-  workflow_run:
-    id: gatekeeper
-    workflows: [ "Gatekeeper" ]
-    types:
-      - completed
 
 jobs:
+  gatekeeper:
+    uses: ./.github/workflows/wait-for-gatekeeper.yml
+
   validate-generated-files:
+    needs: gatekeeper
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -94,6 +93,7 @@ jobs:
         run: make check-diff
 
   validate-backwards-compabitiblity:
+    needs: gatekeeper
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
