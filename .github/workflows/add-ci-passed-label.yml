@@ -25,6 +25,7 @@ jobs:
 
   fetch_data:
     name: Fetch PR eligibility
+    needs: gatekeeper
     runs-on: ubuntu-latest
     outputs:
       pr_number: ${{ steps.pr.outputs.pr_number }}
@@ -90,6 +91,7 @@ jobs:
 
   reset_ci_passed_label:
     name: Reset stale 'ci-passed' label
+    needs: gatekeeper
     runs-on: ubuntu-latest
     steps:
       - name: Remove existing 'ci-passed' label
@@ -128,7 +130,7 @@ jobs:
   add_ci_passed_label:
     name: Add 'ci-passed' label
     runs-on: ubuntu-latest
-    needs: fetch_data
+    needs: [fetch_data,gatekeeper]
     steps:
       - name: Add 'ci-passed' label
         shell: bash
