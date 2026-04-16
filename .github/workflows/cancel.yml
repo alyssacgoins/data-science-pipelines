@@ -13,54 +13,19 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/workflows
+          sparse-checkout-cone-mode: false
+
+      - name: Build workflow list
+        id: workflows
+        run: |
+          ids=$(ls .github/workflows/ \
+            | grep -v -e '^cancel\.yml$' -e '^gatekeeper\.yml$' \
+            | paste -sd ',' -)
+          echo "ids=$ids" >> "$GITHUB_OUTPUT"
+
       - uses: styfle/cancel-workflow-action
         with:
-          workflow_id: >-
-            add-ci-passed-label.yml,
-            api-server-tests.yml,
-            backend-visualization.yml,
-            build-and-push.yml,
-            build-and-push-test-image.yml,
-            build-images.yaml,
-            build-master.yml,
-            build-prs.yml,
-            build-prs-trigger.yaml,
-            build-tools-images.yml,
-            ci-checks.yml,
-            codeql.yml,
-            commit-check-pr.yml,
-            compiler-tests.yml,
-            create-manifest.yml,
-            e2e-test.yml,
-            e2e-test-frontend.yml,
-            frontend.yml,
-            gcpc-modules-tests.yml,
-            gh-workflow-approve.yml,
-            image-builds.yml,
-            image-builds-master.yml,
-            image-builds-release.yml,
-            integration-tests-v1.yml,
-            kfp-kubernetes-library-test.yml,
-            kfp-kubernetes-native-migration-tests.yaml,
-            kfp-sdk-client-tests.yml,
-            kfp-sdk-tests.yml,
-            kfp-sdk-unit-tests.yml,
-            kfp-webhooks.yml,
-            kubeflow-pipelines-manifests.yml,
-            legacy-v2-api-integration-tests.yml,
-            pre-commit.yml,
-            presubmit-backend.yml,
-            publish-packages.yml,
-            readthedocs-builds.yml,
-            sdk-component-yaml.yml,
-            sdk-docformatter.yml,
-            sdk-isort.yml,
-            sdk-upgrade.yml,
-            sdk-yapf.yml,
-            stable-merge-check.yml,
-            stale.yml,
-            tag-release-quay.yml,
-            trivy.yml,
-            unit-tests.yaml,
-            upgrade-test.yml,
-            validate-generated-files.yml
+          workflow_id: ${{ steps.workflows.outputs.ids }}
