@@ -5,6 +5,7 @@ on:
     workflows: [ "Gatekeeper" ]
     types:
       - completed
+
 jobs:
   cancel:
     name: 'Cancel Previous Runs'
