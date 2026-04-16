@@ -1,7 +1,8 @@
 name: Build images for PRs
 on:
   workflow_run:
-    workflows: ["Trigger PR CI"]
+    id: gatekeeper
+    workflows: [ "Trigger PR CI", "Gatekeeper" ]
     types:
       - completed
 env:

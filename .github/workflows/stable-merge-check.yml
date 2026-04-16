@@ -7,6 +7,11 @@ on:
     types: [opened, synchronize, reopened, edited]
   issue_comment:
     types: [created, edited]
+  workflow_run:
+    id: gatekeeper
+    workflows: [ "Gatekeeper" ]
+    types:
+      - completed
 
 permissions:
   issues: write

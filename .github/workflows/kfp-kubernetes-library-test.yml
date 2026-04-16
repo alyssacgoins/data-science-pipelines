@@ -15,6 +15,10 @@ on:
       - 'kubernetes_platform/**'
       - '!**/*.md'
       - '!**/OWNERS'
+  workflow_run:
+    workflows: [ "Gatekeeper" ]
+    types:
+      - completed
 
 jobs:
   kfp-kubernetes-library-test:

@@ -22,6 +22,12 @@ on:
       - '!**/OWNERS'
       - 'backend/src/apiserver/config/sample_config.json'
 
+  workflow_run:
+    id: gatekeeper
+    workflows: [ "Gatekeeper" ]
+    types:
+      - completed
+
 jobs:
   frontend-tests:
     runs-on: ubuntu-latest

@@ -21,6 +21,11 @@ on:
         required: true
         default: true
         description: "Dry run - build packages without publishing to PyPI"
+  workflow_run:
+    id: gatekeeper
+    workflows: [ "Gatekeeper" ]
+    types:
+      - completed
 
 env:
   PYTHON_VERSION: "3.9"

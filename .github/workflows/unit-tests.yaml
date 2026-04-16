@@ -11,6 +11,11 @@ on:
       - closed
       - synchronize
   workflow_dispatch:
+  workflow_run:
+    id: gatekeeper
+    workflows: [ "Gatekeeper" ]
+    types:
+      - completed
 env:
   RESOURCES_DIR: ${{ github.workspace }}/.github/resources
 jobs:

@@ -28,6 +28,11 @@ on:
       - 'test_data/sdk_compiled_pipelines/**'
       - '!**/*.md'
       - '!**/OWNERS'
+  workflow_run:
+    id: gatekeeper
+    workflows: [ "Gatekeeper" ]
+    types:
+      - completed
 
 jobs:
   build:

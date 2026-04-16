@@ -15,6 +15,12 @@ on:
       - '!**/*.md'
       - '!**/OWNERS'
 
+  workflow_run:
+    id: gatekeeper
+    workflows: [ "Gatekeeper" ]
+    types:
+      - completed
+
 jobs:
   all-gcpc-tests:
     runs-on: ubuntu-24.04

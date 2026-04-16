@@ -18,6 +18,11 @@ on:
       - 'test/presubmit-backend-test.sh'
       - '!**/*.md'
       - '!**/OWNERS'
+  workflow_run:
+    id: gatekeeper
+    workflows: [ "Gatekeeper" ]
+    types:
+      - completed
 
 jobs:
   backend-tests:

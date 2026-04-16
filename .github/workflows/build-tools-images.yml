@@ -1,7 +1,12 @@
 name: Build tools images
 
 # This workflow is disabled for downstream.
-on: []
+on:
+  workflow_run:
+    id: gatekeeper
+    workflows: [ "Gatekeeper" ]
+    types:
+      - completed
 #  push:
 #    branches:
 #      - master

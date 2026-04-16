@@ -17,6 +17,11 @@ on:
       - '.github/workflows/sdk-component-yaml.yml'
       - '!**/*.md'
       - '!**/OWNERS'
+  workflow_run:
+    id: gatekeeper
+    workflows: [ "Gatekeeper" ]
+    types:
+      - completed
 
 jobs:
   test-component-yaml-kfp:

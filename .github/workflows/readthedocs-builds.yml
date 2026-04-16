@@ -14,6 +14,11 @@ on:
       - kubernetes_platform/**
       - .github/workflows/readthedocs-builds.yml
       - .readthedocs.yml
+  workflow_run:
+    id: gatekeeper
+    workflows: [ "Gatekeeper" ]
+    types:
+      - completed
 
 jobs:
   test-readthedocs-builds:
