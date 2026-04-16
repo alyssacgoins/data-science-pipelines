@@ -16,8 +16,6 @@ on:
       - '!**/*.md'
       - '!**/OWNERS'
 
-
-
 jobs:
   backend-visualization-test:
     runs-on: ubuntu-latest

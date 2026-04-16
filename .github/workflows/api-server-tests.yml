@@ -65,7 +65,7 @@ concurrency:
 
 jobs:
   cancel-on-gatekeeper-failure:
-    if: ${{ github.event.gatekeeper.conclusion != 'success' }}
+    if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion != 'success' }}
     runs-on: ubuntu-latest
     steps:
       - name: Cancel Workflow
