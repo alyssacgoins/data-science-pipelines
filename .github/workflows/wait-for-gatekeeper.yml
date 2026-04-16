@@ -15,8 +15,10 @@ jobs:
 
           if [ "$EVENT" = "pull_request" ] || [ "$EVENT" = "pull_request_target" ]; then
             SHA="${{ github.event.pull_request.head.sha }}"
+            MIN_WAIT=30
           elif [ "$EVENT" = "workflow_run" ]; then
             SHA="${{ github.event.workflow_run.head_sha }}"
+            MIN_WAIT=0
           else
             echo "Event '${EVENT}' is not PR-related, skipping Gatekeeper check"
             exit 0
@@ -26,31 +28,48 @@ jobs:
           TIMEOUT=600
           INTERVAL=15
           ELAPSED=0
+          SEEN_PENDING=false
 
           echo "Waiting for '${CHECK_NAME}' check on ${SHA}..."
 
           while [ $ELAPSED -lt $TIMEOUT ]; do
             RESULT=$(gh api "repos/${REPO}/commits/${SHA}/check-runs?per_page=100" \
-              --jq "[.check_runs[] | select(.name == \"${CHECK_NAME}\")] | sort_by(.started_at) | last | \"\(.status) \(.conclusion)\"" \
-              2>/dev/null || true)
+              --jq "
+                [.check_runs[] | select(.name == \"${CHECK_NAME}\")] |
+                if length == 0 then \"not_found\"
+                elif any(.status != \"completed\") then \"pending\"
+                else sort_by(.started_at) | last | \"\(.status) \(.conclusion)\"
+                end
+              " 2>/dev/null || true)
 
-            if [ -n "$RESULT" ] && [ "$RESULT" != "null null" ]; then
-              RUN_STATUS=$(echo "$RESULT" | awk '{print $1}')
-              CONCLUSION=$(echo "$RESULT" | awk '{print $2}')
-
-              if [ "$RUN_STATUS" = "completed" ]; then
-                if [ "$CONCLUSION" = "success" ]; then
+            case "$RESULT" in
+              "not_found")
+                SEEN_PENDING=true
+                echo "Gatekeeper check not found yet (${ELAPSED}s elapsed, polling every ${INTERVAL}s)"
+                ;;
+              "pending")
+                SEEN_PENDING=true
+                echo "Gatekeeper: in progress (${ELAPSED}s elapsed, polling every ${INTERVAL}s)"
+                ;;
+              "completed success")
+                if [ "$SEEN_PENDING" = "true" ] || [ $ELAPSED -ge $MIN_WAIT ]; then
                   echo "Gatekeeper passed"
                   exit 0
-                else
+                fi
+                echo "Gatekeeper: found completed check before current run started, waiting for fresh result (${ELAPSED}s elapsed)"
+                ;;
+              "completed "*)
+                if [ "$SEEN_PENDING" = "true" ] || [ $ELAPSED -ge $MIN_WAIT ]; then
+                  CONCLUSION="${RESULT#completed }"
                   echo "Gatekeeper failed (conclusion: $CONCLUSION)"
                   exit 1
                 fi
-              fi
-              echo "Gatekeeper: status=${RUN_STATUS} (${ELAPSED}s elapsed, polling every ${INTERVAL}s)"
-            else
-              echo "Gatekeeper check not found yet (${ELAPSED}s elapsed, polling every ${INTERVAL}s)"
-            fi
+                echo "Gatekeeper: found completed check before current run started, waiting for fresh result (${ELAPSED}s elapsed)"
+                ;;
+              *)
+                echo "Unexpected result: ${RESULT} (${ELAPSED}s elapsed)"
+                ;;
+            esac
 
             sleep $INTERVAL
             ELAPSED=$((ELAPSED + INTERVAL))
