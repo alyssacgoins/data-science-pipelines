@@ -122,6 +122,11 @@ on:
         default: false
         description: 'Whether to push image to CR or not'
         required: true
+  workflow_run:
+    id: gatekeeper
+    workflows: [ "Gatekeeper" ]
+    types:
+      - completed
 env:
   SOURCE_BRANCH: ${{ inputs.src_branch }}
   TARGET_IMAGE_TAG: ${{ inputs.target_tag }}
@@ -133,6 +138,20 @@ env:
   CACHE_PATH: '/tmp/.buildx-cache'
 
 jobs:
+  cancel-on-gatekeeper-failure:
+    if: ${{ github.event.gatekeeper.conclusion != 'success' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel Workflow
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.actions.cancelWorkflowRun({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: context.runId,
+            })
+
   build-and-push-images:
     continue-on-error: false
     runs-on: ${{ inputs.runs_on }}
