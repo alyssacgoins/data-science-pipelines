@@ -47,7 +47,7 @@ jobs:
       - name: Cancel Workflows on Validation Failure
         id: cancel
         if: steps.verify.outcome == 'failure'
-        uses: styfle/cancel-workflow-action
+        uses: styfle/cancel-workflow-action@0.12.1
         with:
           workflow_id: ${{ steps.workflow-list.outputs.ids }}
 
