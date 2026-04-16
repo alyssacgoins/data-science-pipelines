@@ -20,7 +20,11 @@ on:
       - '!**/OWNERS'
 
 jobs:
+  gatekeeper:
+    uses: ./.github/workflows/wait-for-gatekeeper.yml
+
   backend-tests:
+    needs: gatekeeper
     runs-on: ubuntu-latest
 
     steps:

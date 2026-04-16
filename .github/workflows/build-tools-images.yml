@@ -29,7 +29,11 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  gatekeeper:
+    uses: ./.github/workflows/wait-for-gatekeeper.yml
+
   build-tools:
+    needs: gatekeeper
     name: Build tools images
     runs-on: ubuntu-latest
     steps:

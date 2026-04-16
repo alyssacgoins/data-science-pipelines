@@ -22,7 +22,11 @@ on:
       - '!**/OWNERS'
 
 jobs:
+  gatekeeper:
+    uses: ./.github/workflows/wait-for-gatekeeper.yml
+
   build:
+    needs: gatekeeper
     uses: ./.github/workflows/image-builds.yml
 
   frontend-integration-test:

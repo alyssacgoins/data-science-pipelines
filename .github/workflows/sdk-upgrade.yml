@@ -20,7 +20,11 @@ on: []
 #      - '!**/OWNERS'
 
 jobs:
+  gatekeeper:
+    uses: ./.github/workflows/wait-for-gatekeeper.yml
+
   test-upgrade-kfp-sdk:
+    needs: gatekeeper
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout code

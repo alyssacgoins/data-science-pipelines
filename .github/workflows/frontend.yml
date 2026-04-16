@@ -23,7 +23,11 @@ on:
       - 'backend/src/apiserver/config/sample_config.json'
 
 jobs:
+  gatekeeper:
+    uses: ./.github/workflows/wait-for-gatekeeper.yml
+
   frontend-tests:
+    needs: gatekeeper
     runs-on: ubuntu-latest
 
     steps:

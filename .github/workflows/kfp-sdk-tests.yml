@@ -22,7 +22,11 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  gatekeeper:
+    uses: ./.github/workflows/wait-for-gatekeeper.yml
+
   sdk-tests:
+    needs: gatekeeper
     runs-on: ubuntu-latest
     timeout-minutes: 50
     strategy:

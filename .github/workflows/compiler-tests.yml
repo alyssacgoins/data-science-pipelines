@@ -40,7 +40,11 @@ on:
       - '!**/OWNERS'
 
 jobs:
+  gatekeeper:
+    uses: ./.github/workflows/wait-for-gatekeeper.yml
+
   compiler-tests:
+    needs: gatekeeper
     runs-on: ubuntu-latest
     name: Workflow Compiler Tests
 
