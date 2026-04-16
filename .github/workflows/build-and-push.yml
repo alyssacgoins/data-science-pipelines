@@ -123,7 +123,6 @@ on:
         description: 'Whether to push image to CR or not'
         required: true
   workflow_run:
-    id: gatekeeper
     workflows: [ "Gatekeeper" ]
     types:
       - completed
@@ -139,7 +138,7 @@ env:
 
 jobs:
   cancel-on-gatekeeper-failure:
-    if: ${{ github.event.gatekeeper.conclusion != 'success' }}
+    if: ${{ github.event.workflow_run.conclusion != 'success' }}
     runs-on: ubuntu-latest
     steps:
       - name: Cancel Workflow
