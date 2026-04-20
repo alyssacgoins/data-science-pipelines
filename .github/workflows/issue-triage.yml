@@ -12,5 +12,26 @@ jobs:
       - name: Welcome message
         run: gh issue comment ${{ github.event.issue.number }} --body "Thanks for opening this issue! A maintainer will triage it shortly."
         env:
+          GH_ISSUE: ${{ github.event.issue.number }}
+
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install Dependencies
+        run: |
+          pip install PyGithub
+
+      - name: Triage
+        id: triage
+        env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
+          GH_ISSUE: ${{ github.event.issue.number }}
+        run: |
+          python3 .github/scripts/issue-triage.py
+
