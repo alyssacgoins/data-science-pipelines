@@ -10,4 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Welcome message
-        run: echo "A new issue was created!"
+        run: gh issue comment ${{ github.event.issue.number }} --body "Thanks for opening this issue! A maintainer will triage it shortly."
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
