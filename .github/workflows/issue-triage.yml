@@ -1,0 +1,13 @@
+# Triage issues upon opening.
+name: issue-triage.yml
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  on-issue-opened:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Welcome message
+        run: echo "A new issue was created!"
