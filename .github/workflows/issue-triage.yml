@@ -12,6 +12,7 @@ jobs:
       - name: Welcome message
         run: gh issue comment ${{ github.event.issue.number }} --body "Thanks for opening this issue! A maintainer will triage it shortly."
         env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_ISSUE: ${{ github.event.issue.number }}
 
       - name: Checkout code
