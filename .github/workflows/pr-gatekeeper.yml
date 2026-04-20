@@ -33,7 +33,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
-          python3 .github/scripts/verify-linked-issue.py
+          python3 .github/scripts/verify-pr-ready.py
 
       - name: Retrieve Workflow IDs if Validation Failed
         id: workflow-list
