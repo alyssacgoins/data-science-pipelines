@@ -43,6 +43,7 @@ func validateContainer(opts Options) (err error) {
 	return validateNonRoot(opts)
 }
 
+// comment
 func Container(ctx context.Context, opts Options, mlmd *metadata.Client, cacheClient cacheutils.Client) (execution *Execution, err error) {
 	defer func() {
 		if err != nil {
@@ -144,7 +145,7 @@ func Container(ctx context.Context, opts Options, mlmd *metadata.Client, cacheCl
 			return nil, fmt.Errorf("failed to fetch input parameters from execution: %w", err)
 		}
 	}
-
+	//comment
 	if !opts.CacheDisabled {
 		// Generate fingerprint and MLMD ID for cache
 		// Start by getting the names of the PVCs that need to be mounted.
