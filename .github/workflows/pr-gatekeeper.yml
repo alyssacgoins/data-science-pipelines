@@ -55,7 +55,7 @@ jobs:
       # close PR on failure.
       - name: Close PR on failure
         if: always() && steps.verify.outcome == 'failure'
-        run: gh pr close "${{ github.event.pull_request.number }}" --comment "Closing this PR automatically. Link an issue with 'ready' label in the PR body and then reopen. See https://github.com/decentraland/decentraland-node/blob/main/CONTRIBUTING.md#pull-requests for more details."
+        run: gh pr close "${{ github.event.pull_request.number }}" --comment "Closing this PR automatically. Link an issue with 'ready' label in the PR body and then reopen. See [CONTRIBUTING.md](https://github.com/decentraland/decentraland-node/blob/main/CONTRIBUTING.md#pull-requests) for more details."
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
