@@ -18,8 +18,8 @@ def get_owners(repo, path="OWNERS"):
 
 def main() -> int:
     token = os.getenv("GITHUB_TOKEN")
-    issue_num = os.getenv("GH_ISSUE")
-    repo_name = os.getenv("GITHUB_REPOSITORY")
+    issue_num = os.getenv("GITHUB_ISSUE")
+    repo_name = os.getenv("GITHUB_REPO")
 
     g = Github(auth=Auth.Token(token))
     repo = g.get_repo(repo_name)

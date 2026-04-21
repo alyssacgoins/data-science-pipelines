@@ -31,9 +31,9 @@ jobs:
       - name: Triage
         id: triage
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_REPO: ${{ github.repository }}
-          GH_ISSUE: ${{ github.event.issue.number }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPO: ${{ github.repository }}
+          GITHUB_ISSUE: ${{ github.event.issue.number }}
         run: |
           python3 .github/scripts/issue-triage.py
 
