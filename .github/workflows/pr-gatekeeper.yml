@@ -52,7 +52,7 @@ jobs:
           workflow_id: ${{ steps.workflow-list.outputs.ids }}
 
 
-
+      # close PR on failure.
       - name: Close PR on failure
         if: always() && steps.verify.outcome == 'failure'
         run: gh pr close "${{ github.event.pull_request.number }}" --comment "Closing this PR automatically. Link an issue with 'ready' label in the PR body and then reopen. See https://github.com/decentraland/decentraland-node/blob/main/CONTRIBUTING.md#pull-requests for more details."
