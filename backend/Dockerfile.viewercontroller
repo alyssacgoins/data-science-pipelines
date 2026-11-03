@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM golang:1.26.10-alpine@sha256:d1f3216ef30257c850cc136ba42a359ccd9d3e75f19b2c276e520c0b4ef327ce as builder
+FROM golang:1.26.10-alpine3.23 as builder
 
 RUN apk update && apk upgrade
 RUN apk add --no-cache git gcc musl-dev

@@ -14,16 +14,15 @@
 
 # Build arguments
 ARG SOURCE_CODE=.
+ARG FIPS_ENABLED=1
 ARG TARGETOS=linux
 ARG TARGETARCH=amd64
-ARG BUILDER_ARCH=multiarch
 
-FROM registry.access.redhat.com/ubi9/go-toolset:1.26.10@sha256:5ee38c1f5fc2dfa5c5257928912cc26857f4186c07d836271a2d748dc79b083a AS go-toolset-multiarch
-FROM registry.access.redhat.com/ubi9/go-toolset:1.26.10@sha256:c073288dc64060205635575a473f37792cec0fed03c8dbcb5d9ed9415cb0f18e AS go-toolset-arm64
-FROM go-toolset-${BUILDER_ARCH} AS builder
+FROM registry.access.redhat.com/ubi9/go-toolset:1.26.10-1793705918 AS builder
 
 ## Build args to be used at this step
 ARG SOURCE_CODE
+ARG FIPS_ENABLED
 ARG TARGETOS
 ARG TARGETARCH
 
@@ -31,7 +30,10 @@ ARG TARGETARCH
 USER root
 
 RUN dnf upgrade -y && \
-    dnf install -y bash && \
+    dnf install -y bash \
+                   git \
+                   openssh \
+                   gcc && \
     dnf clean all && rm -rf /var/cache/yum
 
 COPY ${SOURCE_CODE}/go.mod ./
@@ -39,26 +41,32 @@ COPY ${SOURCE_CODE}/go.sum ./
 COPY ${SOURCE_CODE}/kubernetes_platform/go.mod ./kubernetes_platform/go.mod
 COPY ${SOURCE_CODE}/api/go.mod ./api/go.mod
 
-RUN GOTOOLCHAIN=local GO111MODULE=on go mod download
+RUN GO111MODULE=on go mod download
 
 # Copy the source
 COPY ${SOURCE_CODE}/ ./
 
-RUN GOTOOLCHAIN=local GO111MODULE=on CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
-      GOFIPS140=v1.0.0 \
-      go build -tags no_openssl -o /bin/controller backend/src/crd/controller/scheduledworkflow/*.go
-
-FROM registry.access.redhat.com/ubi9/ubi-minimal:9.5@sha256:865c6a875328a1174ff7f17599574412edd327aa47812951b9bead902806dc53 AS ubi-minimal-multiarch
-FROM registry.access.redhat.com/ubi9/ubi-minimal:9.5@sha256:da229086eb7881bb653e99ace537fc03512bbbfcf14024e7e447b48015d7cc8c AS ubi-minimal-arm64
-FROM ubi-minimal-${BUILDER_ARCH} AS runtime-deps
-RUN microdnf install -y tzdata.noarch && microdnf clean all
+# FIPS_ENABLED=1 (default): FIPS-compliant build with strictfipsruntime (requires CGO)
+# FIPS_ENABLED=0: Non-FIPS build for local development on Apple Silicon (pure Go, no CGO)
+RUN if [ "${FIPS_ENABLED}" = "0" ]; then \
+      GO111MODULE=on CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
+        go build -o /bin/controller backend/src/crd/controller/scheduledworkflow/*.go; \
+    elif [ "${FIPS_ENABLED}" = "1" ]; then \
+      GO111MODULE=on CGO_ENABLED=1 GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
+        GOEXPERIMENT=strictfipsruntime \
+        go build -tags strictfipsruntime -o /bin/controller backend/src/crd/controller/scheduledworkflow/*.go; \
+    else \
+      echo "ERROR: FIPS_ENABLED must be '0' or '1', got '${FIPS_ENABLED}'" && exit 1; \
+    fi
 
 FROM registry.access.redhat.com/ubi9/ubi-minimal:9.5
-
 WORKDIR /bin
 
 COPY --from=builder /bin/controller /bin/controller
-COPY --from=runtime-deps /usr/share/zoneinfo /usr/share/zoneinfo
+RUN chmod +x /bin/controller
+
+RUN microdnf makecache && \
+     microdnf install -y tzdata.noarch
 
 ENV NAMESPACE=""
 ENV LOG_LEVEL=info

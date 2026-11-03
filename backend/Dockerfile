@@ -14,58 +14,46 @@
 
 # Build arguments
 ARG SOURCE_CODE=.
+ARG FIPS_ENABLED=1
 ARG TARGETOS=linux
 ARG TARGETARCH=amd64
-ARG BUILDER_ARCH=multiarch
 
-FROM registry.access.redhat.com/ubi9/go-toolset:1.26.10@sha256:5ee38c1f5fc2dfa5c5257928912cc26857f4186c07d836271a2d748dc79b083a AS go-toolset-multiarch
-FROM registry.access.redhat.com/ubi9/go-toolset:1.26.10@sha256:c073288dc64060205635575a473f37792cec0fed03c8dbcb5d9ed9415cb0f18e AS go-toolset-arm64
-FROM go-toolset-${BUILDER_ARCH} AS builder
+FROM registry.access.redhat.com/ubi9/go-toolset:1.26.10-1793705918 AS builder
 
-ARG SOURCE_CODE
+ARG FIPS_ENABLED
 ARG TARGETOS
 ARG TARGETARCH
 
 USER root
 
-# Zig is used as a C cross-compiler for CGO (required by mattn/go-sqlite3).
-# Unlike gcc, Zig can target any architecture via --target without needing
-# separate cross-toolchains or a cross-linker.
-ENV ZIG_VERSION=0.16.0
-ENV ZIG_SHA256_x86_64=70e49664a74374b48b51e6f3fdfbf437f6395d42509050588bd49abe52ba3d00
-ENV ZIG_SHA256_aarch64=ea4b09bfb22ec6f6c6ceac57ab63efb6b46e17ab08d21f69f3a48b38e1534f17
-RUN ARCH=$(uname -m) && \
-    eval "EXPECTED=\$ZIG_SHA256_${ARCH}" && \
-    curl --fail -sL "https://ziglang.org/download/${ZIG_VERSION}/zig-${ARCH}-linux-${ZIG_VERSION}.tar.xz" -o /tmp/zig.tar.xz && \
-    echo "${EXPECTED}  /tmp/zig.tar.xz" | sha256sum -c - && \
-    tar -xJ -C /usr/local -f /tmp/zig.tar.xz && \
-    rm /tmp/zig.tar.xz && \
-    ln -s /usr/local/zig-${ARCH}-linux-${ZIG_VERSION}/zig /usr/local/bin/zig
+RUN dnf install -y cmake clang openssl
 
 COPY ${SOURCE_CODE}/go.mod ./
 COPY ${SOURCE_CODE}/go.sum ./
 COPY ${SOURCE_CODE}/kubernetes_platform/go.mod ./kubernetes_platform/go.mod
 COPY ${SOURCE_CODE}/api/go.mod ./api/go.mod
 
-RUN GOTOOLCHAIN=local GO111MODULE=on go mod download
+RUN GO111MODULE=on go mod download
 
 # Copy the source
 COPY ${SOURCE_CODE}/ ./
 
-RUN case "${TARGETARCH}" in \
-      amd64) ZIG_TARGET="x86_64-linux-gnu" ;; \
-      arm64) ZIG_TARGET="aarch64-linux-gnu" ;; \
-      *) echo "Unsupported TARGETARCH: ${TARGETARCH}" >&2; exit 1 ;; \
-    esac && \
-    CC="zig cc --target=${ZIG_TARGET}" && \
-    GOTOOLCHAIN=local GO111MODULE=on CGO_ENABLED=1 CC="${CC}" GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
-      GOFIPS140=v1.0.0 \
-      go build -tags no_openssl -o /bin/apiserver ./backend/src/apiserver/
+# FIPS_ENABLED=1 (default): FIPS-compliant build with strictfipsruntime (requires CGO)
+# FIPS_ENABLED=0: Non-FIPS build for local development on Apple Silicon (pure Go, no CGO)
+RUN if [ "${FIPS_ENABLED}" = "0" ]; then \
+      GO111MODULE=on CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
+        go build -o /bin/apiserver ./backend/src/apiserver/; \
+    elif [ "${FIPS_ENABLED}" = "1" ]; then \
+      GO111MODULE=on CGO_ENABLED=1 GOOS=${TARGETOS} GOARCH=${TARGETARCH} \
+        GOEXPERIMENT=strictfipsruntime \
+        go build -tags strictfipsruntime -o /bin/apiserver ./backend/src/apiserver/; \
+    else \
+      echo "ERROR: FIPS_ENABLED must be '0' or '1', got '${FIPS_ENABLED}'" && exit 1; \
+    fi && \
+    dnf clean all
 
 # 2. Compile preloaded pipeline samples
-FROM registry.access.redhat.com/ubi9/python-311@sha256:7b6cb58d3ff034df7b300800bd89a469d9bd2f739d43250d76b9c9e805307ab5 AS python-311-multiarch
-FROM registry.access.redhat.com/ubi9/python-311@sha256:c7622eed60c05b1f75a0d2f71b265148c2e07c8a53a7a4bc6ebdd7fbb2168da3 AS python-311-arm64
-FROM python-311-${BUILDER_ARCH} AS compiler
+FROM registry.access.redhat.com/ubi9/python-311 AS compiler
 
 ARG TARGETOS TARGETARCH
 
@@ -94,12 +82,6 @@ RUN set -e; \
     echo "Compiling: \"$pipeline_py\"" && python3 "$pipeline_py" && echo -n "Output: " && ls "$pipeline_py.yaml"; \
     done
 
-# 3. Install runtime dependencies for the target architecture
-FROM registry.access.redhat.com/ubi9/ubi-minimal:9.5@sha256:865c6a875328a1174ff7f17599574412edd327aa47812951b9bead902806dc53 AS ubi-minimal-amd64
-FROM registry.access.redhat.com/ubi9/ubi-minimal:9.5@sha256:da229086eb7881bb653e99ace537fc03512bbbfcf14024e7e447b48015d7cc8c AS ubi-minimal-arm64
-FROM ubi-minimal-${TARGETARCH} AS runtime-deps
-RUN microdnf install -y ca-certificates wget && microdnf clean all
-
 FROM registry.access.redhat.com/ubi9/ubi-minimal:9.5
 
 WORKDIR /bin
@@ -108,8 +90,12 @@ COPY --from=builder /opt/app-root/src/backend/src/apiserver/config/ /config
 COPY --from=builder /bin/apiserver /bin/apiserver
 
 COPY --from=compiler /samples/ /samples/
-COPY --from=runtime-deps /etc/pki /etc/pki
-COPY --from=runtime-deps /usr/bin/wget /usr/bin/wget
+RUN chmod +x /bin/apiserver
+
+USER root
+
+# Adding CA certificate so API server can download pipeline through URL and wget is used for liveness/readiness probe command
+RUN microdnf install -y ca-certificates wget
 
 USER 1001
 
